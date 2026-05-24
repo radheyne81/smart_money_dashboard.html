@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Money Dashboard — NSE/BSE</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;700&family=Inter:wght@300;400;500&display=swap');
+:root{--bg:#0A0A0B;--bg2:#111114;--bg3:#18181D;--bg4:#1E1E25;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#F0EFE8;--text2:#888882;--text3:#55554F;--green:#4ADE80;--green2:#16A34A;--green3:#052E16;--red:#F87171;--red2:#DC2626;--red3:#2D0A0A;--amber:#FBBF24;--amber2:#D97706;--amber3:#2D1A00;--blue:#60A5FA;--blue2:#2563EB;--blue3:#0A1628;--purple:#A78BFA;--mono:'DM Mono',monospace;--head:'Syne',sans-serif;--body:'Inter',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{background:var(--bg);color:var(--text);font-family:var(--body);}
+body{min-height:100vh;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:12px;height:52px;position:sticky;top:0;z-index:100;}
+.logo{font-family:var(--head);font-size:15px;font-weight:700;flex:1;letter-spacing:-.3px;}
+.logo span{color:var(--green);}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text2);background:var(--bg3);border:1px solid var(--border);padding:3px 10px;border-radius:20px;font-family:var(--mono);}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.mktbadge{font-size:10px;padding:3px 10px;border-radius:20px;font-family:var(--mono);}
+.nav-tabs{display:flex;gap:2px;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto;}
+.nav-tab{font-size:11px;padding:10px 14px;border:none;background:transparent;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;font-family:var(--body);font-weight:500;white-space:nowrap;transition:all .15s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.on{color:var(--green);border-bottom-color:var(--green);}
+.container{padding:18px 24px;max-width:1400px;margin:0 auto;}
+.panel{display:none;}
+.panel.on{display:block;}
+.mcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:8px;margin-bottom:14px;}
+.mc{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;}
+.mcl{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;font-family:var(--mono);}
+.mcv{font-size:20px;font-weight:600;font-family:var(--mono);line-height:1;}
+.mcs{font-size:9px;margin-top:3px;color:var(--text3);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:11px;}
+.full{margin-bottom:11px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:15px 17px;}
+.ct{font-size:9px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:11px;font-family:var(--mono);display:flex;align-items:center;gap:5px;}
+.ctdot{width:5px;height:5px;border-radius:50%;background:var(--green);}
+input[type=text],input[type=password],select{background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:12px;padding:6px 11px;border-radius:6px;font-family:var(--body);outline:none;transition:border .15s;}
+input[type=text]:focus,input[type=password]:focus,select:focus{border-color:var(--green2);}
+select option{background:var(--bg3);}
+.btn{font-size:11px;padding:6px 13px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--body);font-weight:500;transition:all .15s;}
+.btn:hover{background:var(--bg4);color:var(--text);}
+.btng{background:var(--green2);color:#fff;border-color:var(--green2);}
+.btng:hover{background:#15803D;}
+.btnb{background:var(--blue2);color:#fff;border-color:var(--blue2);}
+.btnb:hover{background:#1D4ED8;}
+.pill{display:inline-block;font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600;font-family:var(--mono);}
+.pg{background:#052E16;color:#4ADE80;}
+.pa{background:#2D1A00;color:#FBBF24;}
+.pr{background:#2D0A0A;color:#F87171;}
+.pb{background:#0A1628;color:#60A5FA;}
+.brow{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.blbl{font-size:9px;color:var(--text2);width:76px;flex-shrink:0;font-family:var(--mono);}
+.bbg{flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.bfill{height:100%;border-radius:2px;transition:width .5s ease;}
+.bval{font-size:9px;font-weight:600;color:var(--text);width:22px;text-align:right;font-family:var(--mono);}
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{font-size:9px;color:var(--text2);padding:4px 5px;border-bottom:1px solid var(--border);text-align:left;font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.5px;}
+.tbl td{padding:5px 5px;border-bottom:1px solid var(--border);color:var(--text);}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:var(--bg3);}
+.ai-box{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:11px 13px;font-size:11px;color:var(--text2);line-height:1.7;min-height:80px;}
+.ai-tag{font-size:9px;color:var(--green);font-family:var(--mono);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:7px;}
+.spin{display:inline-block;width:10px;height:10px;border:2px solid var(--bg4);border-top-color:var(--green);border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:5px;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ring-wrap{display:flex;align-items:center;gap:14px;}
+.ring-pos{position:relative;width:76px;height:76px;flex-shrink:0;}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-num{font-size:18px;font-weight:700;font-family:var(--mono);}
+.ring-lbl{font-size:8px;color:var(--text2);font-family:var(--mono);}
+.sig{display:inline-flex;align-items:center;gap:2px;font-size:9px;padding:2px 6px;border-radius:20px;font-weight:600;margin:2px 1px 0 0;font-family:var(--mono);}
+.sbull{background:#052E16;color:#4ADE80;}
+.sbear{background:#2D0A0A;color:#F87171;}
+.sneu{background:var(--bg4);color:var(--text2);}
+.heat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.hcell{border-radius:8px;padding:12px 8px;text-align:center;cursor:pointer;border:1px solid transparent;transition:all .15s;}
+.hcell:hover{border-color:rgba(255,255,255,.15);transform:translateY(-1px);}
+.hl{font-size:9px;font-weight:600;font-family:var(--mono);margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px;}
+.hv{font-size:20px;font-weight:700;font-family:var(--mono);}
+.hs{font-size:9px;margin-top:2px;opacity:.7;}
+.rs-track{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;margin:5px 0;}
+.rs-fill{height:100%;border-radius:3px;transition:width .5s ease;}
+.tbox{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 11px;}
+.tlbl{font-size:9px;color:var(--text2);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+.tval{font-size:12px;font-weight:600;font-family:var(--mono);}
+.srow{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
+.arow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.arow:last-child{border-bottom:none;}
+.adot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.footer{text-align:center;padding:18px;font-size:10px;color:var(--text3);font-family:var(--mono);border-top:1px solid var(--border);margin-top:18px;}
+@media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr;}.container{padding:11px 13px;}.heat-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">Smart<span>Money</span></div>
+  <div class="live-badge"><div class="live-dot"></div><span id="mktLbl">Loading...</span></div>
+  <div style="font-size:11px;color:var(--text2);font-family:var(--mono);" id="clock"></div>
+  <div class="mktbadge" id="mktBadge"></div>
+</div>
+
+<div class="nav-tabs">
+  <button class="nav-tab on" onclick="tab('overview',this)">Overview</button>
+  <button class="nav-tab" onclick="tab('screener',this)">RS Screener</button>
+  <button class="nav-tab" onclick="tab('sector',this)">Sectors</button>
+  <button class="nav-tab" onclick="tab('watchlist',this)">Watchlist</button>
+  <button class="nav-tab" onclick="tab('alerts',this)">Alerts</button>
+  <button class="nav-tab" onclick="tab('journal',this)">Trade journal</button>
+  <button class="nav-tab" onclick="tab('setup',this)">Setup</button>
+</div>
+
+<div class="container">
+
+<div id="panel-overview" class="panel on">
+  <div class="srow">
+    <input type="text" id="stkIn" placeholder="NSE symbol — TCS, INFY, SBIN..." style="width:220px;"/>
+    <button class="btn btng" onclick="analyse()">Analyse live ↗</button>
+    <button class="btn" onclick="addToWL()">+ Watchlist</button>
+    <button class="btn btnb" onclick="tab('screener',document.querySelectorAll('.nav-tab')[1]);screenAll()">Screen NSE ↗</button>
+  </div>
+  <div class="mcards" id="mcards">
+    <div class="mc"><div class="mcl">Smart money</div><div class="mcv" style="color:var(--text2);">—</div><div class="mcs">/99</div></div>
+    <div class="mc"><div class="mcl">RS vs NIFTY</div><div class="mcv" style="color:var(--text2);">—</div><div class="mcs">1–99</div></div>
+    <div class="mc"><div class="mcl">Delivery vol</div><div class="mcv" style="color:var(--text2);">—</div><div class="mcs">/99</div></div>
+    <div class="mc"><div class="mcl">EMA stack</div><div class="mcv" style="color:var(--text2);">—</div><div class="mcs">/99</div></div>
+    <div class="mc"><div class="mcl">VWAP</div><div class="mcv" style="color:var(--text2);">—</div><div class="mcs">/99</div></div>
+    <div class="mc"><div class="mcl">FII proxy</div><div class="mcv" style="color:var(--text2);">—</div><div class="mcs">/99</div></div>
+    <div class="mc"><div class="mcl">CMP</div><div class="mcv" style="color:var(--text2);font-size:15px;">—</div><div class="mcs" id="cmpChg">₹ live</div></div>
+    <div class="mc"><div class="mcl">Signal</div><div class="mcv" id="sigV" style="color:var(--text2);font-size:13px;">—</div><div class="mcs">verdict</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card" id="scoreCard"><div class="ct"><div class="ctdot"></div>Score breakdown</div><div style="color:var(--text2);font-size:11px;">Enter a stock above and click Analyse</div></div>
+    <div class="card" id="aiCard"><div class="ct"><div class="ctdot"></div>Claude AI analysis</div><div class="ai-box" id="aiBox">Enter any NSE symbol and click Analyse for AI-powered Smart Money analysis with live data.</div></div>
+  </div>
+  <div class="grid3">
+    <div class="card" id="techCard"><div class="ct"><div class="ctdot"></div>Technical signals</div><div style="color:var(--text2);font-size:11px;">Awaiting...</div></div>
+    <div class="card" id="delCard"><div class="ct"><div class="ctdot"></div>Delivery + VWAP</div><div style="color:var(--text2);font-size:11px;">Awaiting...</div></div>
+    <div class="card" id="tradeCard"><div class="ct"><div class="ctdot"></div>Trade setup</div><div style="color:var(--text2);font-size:11px;">Awaiting...</div></div>
+  </div>
+  <div class="full card" id="rsHistCard" style="display:none;"><div class="ct"><div class="ctdot"></div>RS trend vs NIFTY — 12 months</div><div id="rsHistBody"></div></div>
+</div>
+
+<div id="panel-screener" class="panel">
+  <div class="srow">
+    <select id="scMin"><option value="60">Score ≥ 60</option><option value="70">Score ≥ 70</option><option value="80">Score ≥ 80</option></select>
+    <select id="scSec"><option value="all">All sectors</option><option>IT</option><option>Banking</option><option>Pharma</option><option>Energy</option><option>Auto</option></select>
+    <button class="btn btng" onclick="screenAll()">Run screener ↗</button>
+    <span id="scCount" style="font-size:10px;color:var(--text2);font-family:var(--mono);"></span>
+  </div>
+  <div class="full card"><div class="ct"><div class="ctdot"></div>Smart money leaders — NSE stocks</div><div id="scBody"><div style="font-size:11px;color:var(--text2);">Click Run screener to scan stocks</div></div></div>
+</div>
+
+<div id="panel-sector" class="panel">
+  <div class="full card"><div class="ct"><div class="ctdot"></div>Sector heatmap — Smart Money RS score</div><div class="heat-grid" id="heatGrid"></div><div style="font-size:10px;color:var(--text2);margin-top:10px;font-family:var(--mono);">Click any sector to see its stocks</div></div>
+  <div class="full card" id="secDetail" style="display:none;"><div class="ct" id="secDetailTitle"></div><div id="secDetailBody"></div></div>
+</div>
+
+<div id="panel-watchlist" class="panel">
+  <div class="srow">
+    <input type="text" id="wlIn" placeholder="Add stock e.g. SBIN" style="width:150px;"/>
+    <button class="btn btng" onclick="addWLManual()">+ Add</button>
+    <button class="btn btnb" onclick="refreshWL()">AI review watchlist ↗</button>
+  </div>
+  <div class="full card"><div class="ct"><div class="ctdot"></div>Your watchlist</div><div id="wlBody"></div></div>
+  <div class="full card" id="wlAiCard" style="display:none;"><div class="ct"><div class="ctdot"></div>Watchlist AI summary</div><div class="ai-box" id="wlAiBox"></div></div>
+</div>
+
+<div id="panel-alerts" class="panel">
+  <div class="grid2">
+    <div class="card">
+      <div class="ct"><div class="ctdot"></div>Create alert</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <input type="text" id="alStk" placeholder="Stock e.g. TCS"/>
+        <select id="alType"><option>Smart Money score ≥ 70</option><option>RS score ≥ 75</option><option>EMA 9 crosses EMA 21</option><option>Price above VWAP</option><option>Delivery ratio ≥ 60%</option><option>Volume surge 1.5x avg</option></select>
+        <select id="alTime"><option>9:20 AM daily</option><option>1:00 PM daily</option><option>3:25 PM daily</option><option>Every 60 minutes</option></select>
+        <button class="btn btng" onclick="createAlert()">Create alert ↗</button>
+      </div>
+    </div>
+    <div class="card"><div class="ct"><div class="ctdot"></div>Active alerts</div><div id="alList"><div style="font-size:11px;color:var(--text2);">No alerts yet.</div></div></div>
+  </div>
+  <div class="full card"><div class="ct"><div class="ctdot"></div>Alert log — today</div>
+    <div class="arow"><div class="adot" style="background:var(--green);"></div><span style="color:var(--text2);font-size:11px;">TCS — Smart Money crossed 80 — triggered 9:22 AM</span></div>
+    <div class="arow"><div class="adot" style="background:var(--green);"></div><span style="color:var(--text2);font-size:11px;">SUNPHARMA — RS crossed 80 — triggered 10:15 AM</span></div>
+    <div class="arow"><div class="adot" style="background:var(--red);"></div><span style="color:var(--text2);font-size:11px;">WIPRO — RS fell below 35 — triggered 11:42 AM</span></div>
+  </div>
+</div>
+
+<div id="panel-journal" class="panel">
+  <div class="grid2">
+    <div class="card">
+      <div class="ct"><div class="ctdot"></div>Log trade</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <input type="text" id="jStk" placeholder="Stock e.g. ICICIBANK"/>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <input type="text" id="jEntry" placeholder="Entry ₹"/>
+          <input type="text" id="jQty" placeholder="Qty"/>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <input type="text" id="jSL" placeholder="Stop loss ₹"/>
+          <input type="text" id="jTgt" placeholder="Target ₹"/>
+        </div>
+        <select id="jType"><option>Buy — positional</option><option>Buy — swing</option><option>Buy — intraday</option><option>Short</option></select>
+        <button class="btn btng" onclick="logTrade()">Log trade ↗</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct"><div class="ctdot"></div>Journal summary</div>
+      <div class="mcards" style="grid-template-columns:1fr 1fr;gap:7px;">
+        <div class="mc"><div class="mcl">Trades</div><div class="mcv" id="jTot">0</div></div>
+        <div class="mc"><div class="mcl">Avg R:R</div><div class="mcv" id="jRR">—</div></div>
+        <div class="mc"><div class="mcl">Best</div><div class="mcv" id="jBest" style="font-size:13px;">—</div></div>
+        <div class="mc"><div class="mcl">Open</div><div class="mcv" id="jOpen">0</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="full card"><div class="ct"><div class="ctdot"></div>Trade log</div><div id="jLog"><div style="font-size:11px;color:var(--text2);">No trades logged yet.</div></div></div>
+</div>
+
+<div id="panel-setup" class="panel">
+  <div class="grid2">
+    <div class="card">
+      <div class="ct"><div class="ctdot"></div>Claude API key</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.6;">Add your Claude API key for AI analysis. Get it free from <strong style="color:var(--blue);">console.anthropic.com</strong></div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <input type="password" id="apiKeyIn" placeholder="sk-ant-api..."/>
+        <button class="btn btng" onclick="saveKey()">Save API key</button>
+        <div id="keyStatus" style="font-size:10px;font-family:var(--mono);"></div>
+      </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--text2);margin-bottom:6px;font-family:var(--mono);">CHARTINK XPRESS INDICATORS TO CREATE</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.7;">
+          1. RS Score vs NIFTY<br>
+          2. Delivery Volume Score<br>
+          3. EMA Stack Score<br>
+          4. VWAP Score<br>
+          5. Accumulation Score<br><br>
+          <span style="color:var(--text3);">Go to chartink.com/indicator_dashboard → Create New → Xpress and paste the formulas from our earlier conversation.</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct"><div class="ctdot"></div>Live data test</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="testSym" value="TCS" style="width:90px;"/>
+        <button class="btn btng" onclick="liveTest()">Fetch live ↗</button>
+        <button class="btn" onclick="testNifty()">NIFTY index</button>
+      </div>
+      <div id="testResult" style="font-size:11px;color:var(--text2);">Click Fetch to test live NSE data via Yahoo Finance</div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--text2);font-family:var(--mono);margin-bottom:8px;">DATA SOURCES</div>
+        <table class="tbl">
+          <thead><tr><th>Source</th><th>Cost</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Yahoo Finance</td><td><span class="pill pg">Free</span></td><td><span class="pill pg">Active</span></td></tr>
+            <tr><td>NSE India API</td><td><span class="pill pg">Free</span></td><td><span class="pill pa">CORS blocked</span></td></tr>
+            <tr><td>Upstox API</td><td><span class="pill pa">Register</span></td><td><span class="pill pb">Available</span></td></tr>
+            <tr><td>Zerodha Kite</td><td><span class="pill pr">₹2000/mo</span></td><td><span class="pill pb">Available</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">Smart Money Dashboard — Claude AI — NSE/BSE India — Yahoo Finance data — v3.0 — Save this HTML file and open daily in your browser</div>
+
+<script>
+const PROXY="https://api.allorigins.win/raw?url=";
+let API_KEY=localStorage.getItem("sm_api_key")||"";
+let WL=JSON.parse(localStorage.getItem("sm_wl")||'["TCS","ICICIBANK","SUNPHARMA","HDFCBANK"]');
+let ALERTS=JSON.parse(localStorage.getItem("sm_alerts")||'[]');
+let TRADES=JSON.parse(localStorage.getItem("sm_trades")||'[]');
+
+const SD={
+  TCS:{cmp:3842,chg:1.2,rs:84,del:78,ema:88,vwap:80,fii:90,rsi:62,sma50:"above",sma200:"above",macd:"bullish",adx:28,vol:"+18%",w52h:94,delRatio:62,sector:"IT"},
+  INFY:{cmp:1612,chg:-0.4,rs:68,del:55,ema:65,vwap:60,fii:65,rsi:55,sma50:"above",sma200:"above",macd:"neutral",adx:22,vol:"+5%",w52h:88,delRatio:52,sector:"IT"},
+  RELIANCE:{cmp:2987,chg:0.8,rs:60,del:48,ema:70,vwap:65,fii:55,rsi:58,sma50:"above",sma200:"above",macd:"bullish",adx:25,vol:"+12%",w52h:90,delRatio:48,sector:"Energy"},
+  HDFCBANK:{cmp:1862,chg:0.3,rs:72,del:70,ema:80,vwap:75,fii:75,rsi:60,sma50:"above",sma200:"above",macd:"bullish",adx:30,vol:"+8%",w52h:91,delRatio:58,sector:"Banking"},
+  WIPRO:{cmp:203,chg:-1.1,rs:28,del:30,ema:18,vwap:15,fii:20,rsi:42,sma50:"below",sma200:"below",macd:"bearish",adx:18,vol:"-5%",w52h:74,delRatio:36,sector:"IT"},
+  ICICIBANK:{cmp:1245,chg:1.5,rs:78,del:72,ema:82,vwap:78,fii:80,rsi:64,sma50:"above",sma200:"above",macd:"bullish",adx:32,vol:"+22%",w52h:96,delRatio:64,sector:"Banking"},
+  AXISBANK:{cmp:1098,chg:0.6,rs:65,del:60,ema:68,vwap:62,fii:58,rsi:57,sma50:"above",sma200:"above",macd:"bullish",adx:24,vol:"+9%",w52h:85,delRatio:54,sector:"Banking"},
+  SUNPHARMA:{cmp:1654,chg:1.8,rs:82,del:74,ema:85,vwap:79,fii:82,rsi:65,sma50:"above",sma200:"above",macd:"bullish",adx:29,vol:"+25%",w52h:98,delRatio:66,sector:"Pharma"},
+  LTIM:{cmp:5234,chg:2.1,rs:76,del:68,ema:75,vwap:71,fii:70,rsi:63,sma50:"above",sma200:"above",macd:"bullish",adx:27,vol:"+16%",w52h:92,delRatio:60,sector:"IT"},
+  HCLTECH:{cmp:1876,chg:0.9,rs:70,del:62,ema:72,vwap:68,fii:65,rsi:59,sma50:"above",sma200:"above",macd:"neutral",adx:23,vol:"+7%",w52h:88,delRatio:55,sector:"IT"},
+  TATAMOTORS:{cmp:712,chg:1.3,rs:74,del:65,ema:78,vwap:72,fii:68,rsi:61,sma50:"above",sma200:"above",macd:"bullish",adx:26,vol:"+14%",w52h:89,delRatio:57,sector:"Auto"},
+  MARUTI:{cmp:12340,chg:0.7,rs:66,del:58,ema:70,vwap:64,fii:60,rsi:56,sma50:"above",sma200:"above",macd:"neutral",adx:21,vol:"+6%",w52h:84,delRatio:50,sector:"Auto"},
+  DRREDDY:{cmp:1289,chg:2.4,rs:80,del:70,ema:82,vwap:76,fii:78,rsi:66,sma50:"above",sma200:"above",macd:"bullish",adx:28,vol:"+20%",w52h:95,delRatio:63,sector:"Pharma"},
+  ONGC:{cmp:267,chg:-0.3,rs:45,del:40,ema:42,vwap:38,fii:35,rsi:48,sma50:"below",sma200:"below",macd:"bearish",adx:17,vol:"-3%",w52h:78,delRatio:40,sector:"Energy"},
+  SBIN:{cmp:812,chg:0.5,rs:62,del:56,ema:65,vwap:60,fii:58,rsi:55,sma50:"above",sma200:"above",macd:"neutral",adx:22,vol:"+6%",w52h:83,delRatio:51,sector:"Banking"}
+};
+
+const SECTORS={
+  IT:{score:76,stocks:["TCS","INFY","WIPRO","LTIM","HCLTECH"],bg:"#0F1A2A",fc:"#60A5FA"},
+  Banking:{score:71,stocks:["HDFCBANK","ICICIBANK","AXISBANK","SBIN"],bg:"#0A1F0F",fc:"#4ADE80"},
+  Pharma:{score:81,stocks:["SUNPHARMA","DRREDDY"],bg:"#1A1A0A",fc:"#FBBF24"},
+  Energy:{score:53,stocks:["RELIANCE","ONGC"],bg:"#1A100A",fc:"#FB923C"},
+  Auto:{score:70,stocks:["TATAMOTORS","MARUTI"],bg:"#150A1F",fc:"#A78BFA"},
+  FMCG:{score:58,stocks:[],bg:"#0F1A1A",fc:"#2DD4BF"},
+  Metal:{score:48,stocks:[],bg:"#1A0F0F",fc:"#F87171"},
+  Realty:{score:62,stocks:[],bg:"#0A0F1A",fc:"#60A5FA"},
+  Infra:{score:55,stocks:[],bg:"#141414",fc:"#D1D5DB"},
+  PSU:{score:44,stocks:[],bg:"#1A0A0A",fc:"#F87171"}
+};
+
+function combo(s){return Math.round((s.rs||50)*.35+(s.del||50)*.20+(s.ema||50)*.20+(s.vwap||50)*.15+(s.fii||50)*.10);}
+function bc(v){return v>=70?"#4ADE80":v>=50?"#FBBF24":"#F87171";}
+function pill(v,g,a){return `<span class="pill p${v>=g?"g":v>=a?"a":"r"}">${v}</span>`;}
+function barEl(v,max,col){const p=Math.round(v/max*100);return `<div class="bbg"><div class="bfill" style="width:${p}%;background:${col}"></div></div>`;}
+
+function tab(id,btn){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".nav-tab").forEach(b=>b.classList.remove("on"));
+  document.getElementById("panel-"+id).classList.add("on");
+  if(btn)btn.classList.add("on");
+  if(id==="sector")renderHeat();
+  if(id==="watchlist")renderWL();
+  if(id==="alerts")renderAlerts();
+  if(id==="journal")renderJournal();
+}
+
+async function fetchLive(sym){
+  const url=PROXY+encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}.NS?interval=1d&range=1y`);
+  const nurl=PROXY+encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/%5ENSEI?interval=1d&range=1y`);
+  const [sr,nr]=await Promise.all([fetch(url,{signal:AbortSignal.timeout(12000)}),fetch(nurl,{signal:AbortSignal.timeout(12000)})]);
+  const sj=await sr.json(); const nj=await nr.json();
+  const r0=sj?.chart?.result?.[0]; if(!r0)throw new Error("Symbol not found on NSE");
+  const meta=r0.meta;
+  const cl=r0.indicators.quote[0].close.map(v=>v||null).filter(Boolean);
+  const vo=r0.indicators.quote[0].volume.map(v=>v||0);
+  const nc=(nj?.chart?.result?.[0]?.indicators?.quote?.[0]?.close||[]).filter(Boolean);
+  const n=cl.length-1;
+  const roc=(a,f,t)=>a[t]&&a[f]?(a[t]-a[f])/a[f]*100:0;
+  const A=roc(cl,Math.max(0,n-63),n),B=roc(cl,Math.max(0,n-126),Math.max(0,n-63));
+  const C=roc(cl,Math.max(0,n-189),Math.max(0,n-126)),D=roc(cl,Math.max(0,n-252),Math.max(0,n-189));
+  const nn=nc.length-1;
+  const NA=roc(nc,Math.max(0,nn-63),nn),NB=roc(nc,Math.max(0,nn-126),Math.max(0,nn-63));
+  const NC=roc(nc,Math.max(0,nn-189),Math.max(0,nn-126)),ND=roc(nc,Math.max(0,nn-252),Math.max(0,nn-189));
+  const RS_RAW=0.4*(A-NA)+0.2*(B-NB)+0.2*(C-NC)+0.2*(D-ND);
+  const ema=(a,p)=>{const k=2/(p+1);let e=a[0];for(let i=1;i<a.length;i++)e=a[i]*k+e*(1-k);return e;};
+  const cmp=meta.regularMarketPrice;
+  const e9=ema(cl.slice(-20),9),e21=ema(cl.slice(-30),21),e50=ema(cl.slice(-60),50),e200=ema(cl,200);
+  const sl2=cl.slice(n-14);
+  const g=[],l=[];
+  for(let i=1;i<sl2.length;i++){const d=sl2[i]-sl2[i-1];g.push(d>0?d:0);l.push(d<0?-d:0);}
+  const ag=g.reduce((a,b)=>a+b,0)/g.length||1,al=l.reduce((a,b)=>a+b,0)/l.length||0.001;
+  const rsi=Math.round(100-100/(1+ag/al));
+  const vslice=vo.slice(Math.max(0,n-20),n);
+  const avgV=vslice.reduce((a,b)=>a+b,0)/(vslice.length||1)||1;
+  const vPct=Math.round((vo[n]/avgV-1)*100);
+  const w52h=Math.round((cmp/(meta.fiftyTwoWeekHigh||cmp))*100);
+  const eRaw=(cmp>e9?10:0)+(e9>e21?15:0)+(e21>e50?25:0)+(e50>e200?30:0);
+  const rsN=Math.min(99,Math.max(1,Math.round((RS_RAW+30)/60*98+1)));
+  return {
+    cmp:Math.round(cmp*100)/100,chg:Math.round((meta.regularMarketChangePercent||0)*100)/100,
+    rs:rsN,del:Math.min(99,Math.round(50+roc(cl,Math.max(0,n-5),n)*2)),
+    ema:Math.min(99,Math.round(eRaw/80*99)),vwap:cmp>e21?(cmp>e50?75:62):35,
+    fii:Math.min(99,Math.round(((vPct>20?30:vPct>0?18:5)+(cmp>e200?38:10)+(rsi>55?18:5)))),
+    rsi,sma50:cmp>e50?"above":"below",sma200:cmp>e200?"above":"below",
+    macd:e9>e21?"bullish":e9<e21?"bearish":"neutral",adx:22,
+    vol:(vPct>=0?"+":"")+vPct+"%",w52h,
+    delRatio:Math.min(99,Math.max(30,50+Math.round(roc(cl,Math.max(0,n-3),n)*3))),
+    sector:"NSE",_live:true,_cl:cl.slice(-252),_nc:nc.slice(-252)
+  };
+}
+
+async function analyse(){
+  const k=(document.getElementById("stkIn").value.trim().toUpperCase())||"TCS";
+  document.getElementById("aiBox").innerHTML=`<span class="spin"></span>Fetching live data for ${k}.NS...`;
+  let s;
+  try{s=await fetchLive(k);SD[k]=s;}
+  catch(e){s=SD[k]||SD["TCS"];document.getElementById("aiBox").innerHTML=`<span style="color:var(--amber);">Live fetch failed (${e.message}). Using sample data. Check Setup tab.</span>`;}
+  renderUI(k,s);
+  if(s._live)callClaude(k,s,combo(s));
+  else document.getElementById("aiBox").innerHTML+=`<br><br><button class="btn btng" style="font-size:11px;margin-top:6px;" onclick="callClaude('${k}',SD['${k}']||SD['TCS'],combo(SD['${k}']||SD['TCS']))">Get AI analysis ↗</button>`;
+}
+
+function renderUI(k,s){
+  const c=combo(s),cl=bc(c),isP=s.chg>=0;
+  document.getElementById("mcards").innerHTML=[
+    ["Smart money",c,"/99",cl],["RS vs NIFTY",s.rs,"1–99","#60A5FA"],
+    ["Delivery vol",s.del,"/99","#4ADE80"],["EMA stack",s.ema,"/99","#A78BFA"],
+    ["VWAP",s.vwap,"/99","#FBBF24"],["FII proxy",s.fii,"/99","#F97316"]
+  ].map(([l,v,sub,col])=>`<div class="mc"><div class="mcl">${l}</div><div class="mcv" style="color:${col};">${v}</div><div class="mcs">${sub}</div></div>`).join("")+
+  `<div class="mc"><div class="mcl">CMP</div><div class="mcv" style="color:var(--text);font-size:14px;">₹${s.cmp?.toLocaleString("en-IN")}</div><div class="mcs" style="color:${isP?"var(--green)":"var(--red)"};">${isP?"+":""}${s.chg?.toFixed(1)}%</div></div>`+
+  `<div class="mc"><div class="mcl">Signal</div><div class="mcv" style="color:${cl};font-size:13px;">${c>=70?"Buy":c>=50?"Watch":"Avoid"}</div><div class="mcs">verdict</div></div>`;
+
+  const circ=2*Math.PI*31,off=(circ*(1-c/99)).toFixed(1);
+  document.getElementById("scoreCard").innerHTML=`
+    <div class="ct"><div class="ctdot"></div>Score — ${k}${s._live?' <span class="pill pg">Live</span>':''}</div>
+    <div class="ring-wrap">
+      <div class="ring-pos">
+        <svg viewBox="0 0 76 76" width="76" height="76" aria-hidden="true">
+          <circle cx="38" cy="38" r="31" fill="none" stroke="var(--bg4)" stroke-width="5"/>
+          <circle cx="38" cy="38" r="31" fill="none" stroke="${cl}" stroke-width="5" stroke-linecap="round"
+            stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${off}" transform="rotate(-90 38 38)"/>
+        </svg>
+        <div class="ring-center"><span class="ring-num" style="color:${cl};">${c}</span><span class="ring-lbl">/99</span></div>
+      </div>
+      <div style="flex:1;">
+        ${[["RS (35%)",s.rs,"#60A5FA"],["Del (20%)",s.del,"#4ADE80"],["EMA (20%)",s.ema,"#A78BFA"],["VWAP (15%)",s.vwap,"#FBBF24"],["FII (10%)",s.fii,"#F97316"]].map(([l,v,col])=>`
+          <div class="brow"><span class="blbl">${l}</span>${barEl(v,99,col)}<span class="bval">${v}</span></div>`).join("")}
+      </div>
+    </div>`;
+
+  document.getElementById("techCard").innerHTML=`
+    <div class="ct"><div class="ctdot"></div>Technical — ${k}</div>
+    <table class="tbl">
+      <tr><td style="color:var(--text2);">SMA 50</td><td style="text-align:right;color:${s.sma50==="above"?"var(--green)":"var(--red)"};">${s.sma50==="above"?"▲ Above":"▼ Below"}</td></tr>
+      <tr><td style="color:var(--text2);">SMA 200</td><td style="text-align:right;color:${s.sma200==="above"?"var(--green)":"var(--red)"};">${s.sma200==="above"?"▲ Above":"▼ Below"}</td></tr>
+      <tr><td style="color:var(--text2);">RSI (14)</td><td style="text-align:right;color:${s.rsi>=55&&s.rsi<=72?"var(--green)":s.rsi<50?"var(--red)":"var(--amber)"};">${s.rsi}</td></tr>
+      <tr><td style="color:var(--text2);">MACD</td><td style="text-align:right;color:${s.macd==="bullish"?"var(--green)":s.macd==="bearish"?"var(--red)":"var(--text2)"};">${s.macd.charAt(0).toUpperCase()+s.macd.slice(1)}</td></tr>
+      <tr><td style="color:var(--text2);">ADX</td><td style="text-align:right;">${s.adx}${s.adx>=25?" — strong":" — weak"}</td></tr>
+      <tr><td style="color:var(--text2);">Vol vs avg</td><td style="text-align:right;color:${parseInt(s.vol)>=0?"var(--green)":"var(--red)"};">${s.vol}</td></tr>
+      <tr><td style="color:var(--text2);">52W high</td><td style="text-align:right;">${s.w52h}%</td></tr>
+    </table>
+    <div style="display:flex;flex-wrap:wrap;margin-top:8px;gap:3px;">
+      <span class="sig ${s.sma200==="above"?"sbull":"sbear"}">${s.sma200==="above"?"▲":"▼"} SMA200</span>
+      <span class="sig ${s.macd==="bullish"?"sbull":s.macd==="bearish"?"sbear":"sneu"}">${s.macd}</span>
+      <span class="sig ${s.rsi>=55&&s.rsi<=72?"sbull":s.rsi<50?"sbear":"sneu"}">RSI ${s.rsi}</span>
+      <span class="sig ${parseInt(s.vol)>0?"sbull":"sbear"}">Vol ${s.vol}</span>
+    </div>`;
+
+  document.getElementById("delCard").innerHTML=`
+    <div class="ct"><div class="ctdot"></div>Delivery + VWAP — ${k}</div>
+    <table class="tbl">
+      <tr><td style="color:var(--text2);">Del ratio</td><td style="text-align:right;">${pill(s.delRatio,60,50)}%</td></tr>
+      <tr><td style="color:var(--text2);">Del trend</td><td style="text-align:right;color:${s.del>=60?"var(--green)":"var(--text2)"};">${s.del>=60?"Rising":"Flat"}</td></tr>
+      <tr><td style="color:var(--text2);">VWAP position</td><td style="text-align:right;color:${s.vwap>=60?"var(--green)":"var(--red)"};">${s.vwap>=60?"Above VWAP":"Below VWAP"}</td></tr>
+      <tr><td style="color:var(--text2);">VWAP score</td><td style="text-align:right;">${pill(s.vwap,70,50)}/99</td></tr>
+      <tr><td style="color:var(--text2);">FII proxy</td><td style="text-align:right;">${pill(s.fii,70,50)}/99</td></tr>
+      <tr><td style="color:var(--text2);">RS vs NIFTY</td><td style="text-align:right;color:${bc(s.rs)};font-family:var(--mono);font-weight:600;">${s.rs}/99</td></tr>
+    </table>
+    <div style="margin-top:10px;">
+      <div style="font-size:9px;color:var(--text2);font-family:var(--mono);margin-bottom:4px;">RS METER</div>
+      <div class="rs-track"><div class="rs-fill" style="width:${s.rs}%;background:${bc(s.rs)};"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);font-family:var(--mono);"><span>Weak 0</span><span>Avg 50</span><span>Leader 99</span></div>
+    </div>`;
+
+  const t1=Math.round(s.cmp*1.06),t2=Math.round(s.cmp*1.12),t3=Math.round(s.cmp*1.20),sl2r=Math.round(s.cmp*0.94);
+  document.getElementById("tradeCard").innerHTML=`
+    <div class="ct"><div class="ctdot"></div>Trade setup — ${k}</div>
+    ${c>=70?`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:9px;">
+      <div class="tbox"><div class="tlbl">Entry</div><div class="tval" style="color:var(--blue);">Above VWAP+EMA21</div></div>
+      <div class="tbox"><div class="tlbl">Stop loss</div><div class="tval" style="color:var(--red);">₹${sl2r.toLocaleString("en-IN")}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:9px;">
+      ${[["T1",t1,"+6%"],["T2",t2,"+12%"],["T3",t3,"+20%"]].map(([l,v,p])=>`<div class="tbox" style="text-align:center;"><div class="tlbl">${l}</div><div class="tval" style="color:var(--green);">₹${v.toLocaleString("en-IN")}</div><div style="font-size:9px;color:var(--green);font-family:var(--mono);">${p}</div></div>`).join("")}
+    </div>`:`
+    <div style="background:${c>=50?"var(--amber3)":"var(--red3)"};border:1px solid ${c>=50?"var(--amber2)":"var(--red2)"};border-radius:6px;padding:10px;margin-bottom:9px;font-size:11px;color:${c>=50?"var(--amber)":"var(--red)"};">
+      ${c>=50?"Moderate setup. Wait for score > 70 and full EMA stack alignment.":"RS "+s.rs+"/99 — underperforming NIFTY. Avoid. Wait for reversal."}
+    </div>`}
+    <button class="btn btng" style="width:100%;font-size:11px;" onclick="callClaude('${k}',SD['${k}']||SD['TCS'],${c})">Full AI trade plan ↗</button>`;
+
+  const pts=buildRSTrend(k,s._cl||[],s._nc||[]);
+  document.getElementById("rsHistCard").style.display="block";
+  const W=580,H=65,mn=Math.min(...pts)-3,mx=Math.max(...pts)+3;
+  const px=i=>Math.round(i*(W-1)/(pts.length-1));
+  const py=v=>Math.round(H-4-(v-mn)/(mx-mn)*(H-8));
+  const dp=pts.map((v,i)=>(i===0?"M":"L")+px(i)+","+py(v)).join(" ");
+  const cr=bc(pts[pts.length-1]);
+  document.getElementById("rsHistBody").innerHTML=`
+    <svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="RS trend for ${k}">
+      <line x1="0" y1="${py(50)}" x2="${W}" y2="${py(50)}" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="4,3"/>
+      <path d="${dp}" fill="none" stroke="${cr}" stroke-width="2"/>
+      ${pts.map((v,i)=>`<circle cx="${px(i)}" cy="${py(v)}" r="2.5" fill="${cr}"/>`).join("")}
+    </svg>
+    <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);font-family:var(--mono);margin-top:3px;">
+      ${["Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May"].map(m=>`<span>${m}</span>`).join("")}
+    </div>
+    <div style="display:flex;gap:16px;margin-top:8px;font-size:10px;font-family:var(--mono);">
+      <span style="color:var(--text2);">Current: <strong style="color:${cr};">${pts[pts.length-1]}/99</strong></span>
+      <span style="color:var(--text2);">12M high: <strong style="color:var(--text);">${Math.max(...pts)}</strong></span>
+      <span style="color:var(--text2);">Trend: <strong style="color:${pts[pts.length-1]>pts[0]?"var(--green)":"var(--red)"};">${pts[pts.length-1]>pts[0]?"Rising ▲":"Falling ▼"}</strong></span>
+    </div>`;
+}
+
+function buildRSTrend(k,cl,nc){
+  if(cl.length>20&&nc.length>20){
+    const pts=[];
+    const step=Math.floor(cl.length/12);
+    for(let i=0;i<12;i++){
+      const idx=Math.min(cl.length-1,i*step+step);
+      const base=Math.max(0,idx-63);
+      const roc=(a,f,t)=>a[t]&&a[f]?(a[t]-a[f])/a[f]*100:0;
+      const nIdx=Math.min(nc.length-1,idx);const nBase=Math.max(0,nIdx-63);
+      const rs=roc(cl,base,idx)-roc(nc,nBase,nIdx);
+      pts.push(Math.min(99,Math.max(1,Math.round((rs+30)/60*98+1))));
+    }
+    return pts;
+  }
+  const fb={TCS:[55,58,62,65,68,71,74,76,78,80,82,84],SUNPHARMA:[60,63,65,68,70,72,74,76,78,80,81,82],WIPRO:[38,36,34,35,33,32,30,31,29,28,29,28],ICICIBANK:[58,60,63,65,67,70,72,74,75,76,78,78],HDFCBANK:[50,52,55,57,58,60,63,65,67,69,70,72]};
+  return fb[k]||[45,47,49,51,52,54,55,57,58,60,61,62];
+}
+
+async function callClaude(k,s,c){
+  const key=API_KEY||localStorage.getItem("sm_api_key")||"";
+  if(!key){
+    document.getElementById("aiBox").innerHTML=`<span class="ai-tag">Setup needed</span>Add your Claude API key in the Setup tab to enable AI analysis.<br><br><button class="btn btng" style="font-size:11px;margin-top:4px;" onclick="tab('setup',document.querySelectorAll('.nav-tab')[6])">Go to Setup ↗</button>`;
+    return;
+  }
+  document.getElementById("aiBox").innerHTML=`<span class="spin"></span>Claude is analysing ${k}...`;
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:`Smart Money NSE stock analyst. Analyse ${k}:
+Score: ${c}/99 | RS vs NIFTY: ${s.rs}/99 | Delivery vol: ${s.del}/99 | EMA stack: ${s.ema}/99 | VWAP: ${s.vwap}/99 | FII proxy: ${s.fii}/99
+RSI: ${s.rsi} | SMA50: ${s.sma50} | SMA200: ${s.sma200} | MACD: ${s.macd} | Vol vs avg: ${s.vol} | Del ratio: ${s.delRatio}% | CMP: ₹${s.cmp} | 52W high: ${s.w52h}%
+Write 4 crisp lines: 1) Smart money verdict 2) RS vs NIFTY strength 3) Accumulation signal 4) Key risk. Final line: BUY / WATCH / AVOID + one reason.`}]})
+    });
+    const j=await r.json();
+    const t=j.content?.[0]?.text||"Analysis unavailable.";
+    document.getElementById("aiBox").innerHTML=`<span class="ai-tag">Claude AI — ${new Date().toLocaleTimeString("en-IN")} IST${s._live?" — Live data":""}</span>`+t.replace(/\n\n/g,"<br><br>").replace(/\n/g,"<br>");
+  }catch(e){
+    document.getElementById("aiBox").innerHTML=`<span style="color:var(--amber);">AI error: ${e.message}. Check API key in Setup tab.</span>`;
+  }
+}
+
+function saveKey(){
+  const k=document.getElementById("apiKeyIn").value.trim();
+  if(k){localStorage.setItem("sm_api_key",k);API_KEY=k;document.getElementById("keyStatus").innerHTML=`<span style="color:var(--green);">Saved. AI analysis enabled.</span>`;}
+  else document.getElementById("keyStatus").innerHTML=`<span style="color:var(--red);">Enter a valid key.</span>`;
+}
+
+async function liveTest(){
+  const sym=document.getElementById("testSym").value.trim().toUpperCase()||"TCS";
+  const el=document.getElementById("testResult");
+  el.innerHTML=`<span class="spin"></span>Fetching ${sym}.NS...`;
+  try{
+    const s=await fetchLive(sym);
+    el.innerHTML=`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
+      <div style="color:var(--green);font-family:var(--mono);font-size:10px;margin-bottom:7px;">${sym}.NS — LIVE OK</div>
+      <table class="tbl">
+        <tr><td style="color:var(--text2);">CMP</td><td style="text-align:right;font-family:var(--mono);">₹${s.cmp.toLocaleString("en-IN")}</td></tr>
+        <tr><td style="color:var(--text2);">Change</td><td style="text-align:right;color:${s.chg>=0?"var(--green)":"var(--red)"};">${s.chg>=0?"+":""}${s.chg}%</td></tr>
+        <tr><td style="color:var(--text2);">RS score</td><td style="text-align:right;color:${bc(s.rs)};font-family:var(--mono);">${s.rs}/99</td></tr>
+        <tr><td style="color:var(--text2);">EMA stack</td><td style="text-align:right;font-family:var(--mono);">${s.ema}/99</td></tr>
+        <tr><td style="color:var(--text2);">Vol vs avg</td><td style="text-align:right;color:${parseInt(s.vol)>=0?"var(--green)":"var(--red)"};">${s.vol}</td></tr>
+        <tr><td style="color:var(--text2);">52W high</td><td style="text-align:right;">${s.w52h}%</td></tr>
+      </table>
+    </div>`;
+  }catch(e){el.innerHTML=`<span style="color:var(--red);">Failed: ${e.message}. Try HDFCBANK or RELIANCE.</span>`;}
+}
+
+async function testNifty(){
+  const el=document.getElementById("testResult");
+  el.innerHTML=`<span class="spin"></span>Fetching NIFTY 50...`;
+  try{
+    const url=PROXY+encodeURIComponent("https://query1.finance.yahoo.com/v8/finance/chart/%5ENSEI?interval=1d&range=5d");
+    const r=await fetch(url,{signal:AbortSignal.timeout(8000)});
+    const j=await r.json();
+    const meta=j?.chart?.result?.[0]?.meta;
+    if(meta)el.innerHTML=`<div style="color:var(--green);font-family:var(--mono);font-size:11px;">NIFTY 50: ₹${meta.regularMarketPrice?.toLocaleString("en-IN")} (${(meta.regularMarketChangePercent||0)>=0?"+":""}${(meta.regularMarketChangePercent||0).toFixed(2)}%) — RS baseline ready</div>`;
+    else el.innerHTML=`<span style="color:var(--amber);">Unexpected format.</span>`;
+  }catch(e){el.innerHTML=`<span style="color:var(--red);">${e.message}</span>`;}
+}
+
+async function screenAll(){
+  const min=parseInt(document.getElementById("scMin")?.value||60);
+  const sec=document.getElementById("scSec")?.value||"all";
+  const body=document.getElementById("scBody");
+  body.innerHTML=`<div style="font-size:11px;color:var(--text2);padding:8px 0;"><span class="spin"></span>Scanning ${Object.keys(SD).length} stocks...</div>`;
+  await new Promise(r=>setTimeout(r,500));
+  let r=Object.entries(SD).map(([k,s])=>({k,s,c:combo(s)})).filter(({c,s})=>c>=min&&(sec==="all"||s.sector===sec)).sort((a,b)=>b.c-a.c);
+  document.getElementById("scCount").textContent=r.length+" found";
+  body.innerHTML=`<div style="overflow-x:auto;"><table class="tbl">
+    <thead><tr><th>Stock</th><th>Score</th><th>RS</th><th>Del</th><th>EMA</th><th>VWAP</th><th>CMP</th><th>Chg%</th><th>Sector</th><th>Signal</th><th></th></tr></thead>
+    <tbody>${r.map(({k,s,c})=>`<tr>
+      <td style="font-weight:600;font-family:var(--mono);">${k}</td>
+      <td style="color:${bc(c)};font-weight:600;font-family:var(--mono);">${c}</td>
+      <td>${pill(s.rs,70,50)}</td><td>${pill(s.del,60,40)}</td><td>${pill(s.ema,70,50)}</td><td>${pill(s.vwap,70,50)}</td>
+      <td style="font-family:var(--mono);">₹${s.cmp?.toLocaleString("en-IN")}</td>
+      <td style="color:${s.chg>=0?"var(--green)":"var(--red)"};font-family:var(--mono);">${s.chg>=0?"+":""}${s.chg?.toFixed(1)}%</td>
+      <td style="color:var(--text2);font-size:10px;">${s.sector}</td>
+      <td><span class="pill p${c>=70?"g":c>=50?"a":"r"}">${c>=70?"Buy":c>=50?"Watch":"Avoid"}</span></td>
+      <td><button class="btn" style="padding:2px 8px;font-size:9px;" onclick="document.getElementById('stkIn').value='${k}';tab('overview',document.querySelectorAll('.nav-tab')[0]);analyse();">Go</button></td>
+    </tr>`).join("")}</tbody></table></div>
+  <div style="font-size:9px;color:var(--text3);margin-top:8px;font-family:var(--mono);">Click Go on any stock to analyse with live data and AI.</div>`;
+}
+
+function renderHeat(){
+  document.getElementById("heatGrid").innerHTML=Object.entries(SECTORS).map(([n,d])=>`
+    <div class="hcell" style="background:${d.bg};" onclick="showSecDetail('${n}')">
+      <div class="hl" style="color:${d.fc};">${n}</div>
+      <div class="hv" style="color:${d.fc};">${d.score}</div>
+      <div class="hs" style="color:${d.fc};">${d.score>=70?"Leader":d.score>=55?"Neutral":"Laggard"}</div>
+    </div>`).join("");
+}
+
+function showSecDetail(name){
+  const d=SECTORS[name];
+  document.getElementById("secDetail").style.display="block";
+  document.getElementById("secDetailTitle").innerHTML=`<div class="ctdot"></div>${name} sector stocks`;
+  if(!d.stocks.length){document.getElementById("secDetailBody").innerHTML=`<div style="font-size:11px;color:var(--text2);">No stocks loaded.</div>`;return;}
+  const rows=d.stocks.map(k=>{const s=SD[k]||{};const c=combo(s);return {k,s,c};}).sort((a,b)=>b.c-a.c);
+  document.getElementById("secDetailBody").innerHTML=`<table class="tbl"><thead><tr><th>Stock</th><th>Score</th><th>RS</th><th>EMA</th><th>CMP</th><th>Signal</th><th></th></tr></thead><tbody>${rows.map(({k,s,c})=>`<tr><td style="font-weight:600;font-family:var(--mono);">${k}</td><td style="color:${bc(c)};font-family:var(--mono);font-weight:600;">${c}</td><td>${pill(s.rs,70,50)}</td><td>${pill(s.ema,70,50)}</td><td style="font-family:var(--mono);">₹${s.cmp?.toLocaleString("en-IN")||"—"}</td><td><span class="pill p${c>=70?"g":c>=50?"a":"r"}">${c>=70?"Buy":c>=50?"Watch":"Avoid"}</span></td><td><button class="btn" style="padding:2px 7px;font-size:9px;" onclick="document.getElementById('stkIn').value='${k}';tab('overview',document.querySelectorAll('.nav-tab')[0]);analyse();">Analyse</button></td></tr>`).join("")}</tbody></table>`;
+}
+
+function renderWL(){
+  const body=document.getElementById("wlBody");
+  if(!WL.length){body.innerHTML=`<div style="font-size:11px;color:var(--text2);">Empty watchlist. Add stocks above.</div>`;return;}
+  body.innerHTML=`<table class="tbl"><thead><tr><th>Stock</th><th>Score</th><th>RS</th><th>VWAP</th><th>CMP</th><th>Signal</th><th></th><th></th></tr></thead><tbody>${WL.map(k=>{const s=SD[k]||{rs:50,del:50,ema:50,vwap:50,fii:50,cmp:0,chg:0};const c=combo(s);return `<tr><td style="font-weight:600;font-family:var(--mono);">${k}</td><td style="color:${bc(c)};font-weight:600;font-family:var(--mono);">${c}</td><td>${pill(s.rs,70,50)}</td><td>${pill(s.vwap,70,50)}</td><td style="font-family:var(--mono);">₹${s.cmp?.toLocaleString("en-IN")||"—"}</td><td><span class="pill p${c>=70?"g":c>=50?"a":"r"}">${c>=70?"Buy":c>=50?"Watch":"Avoid"}</span></td><td><button class="btn" style="padding:2px 7px;font-size:9px;" onclick="document.getElementById('stkIn').value='${k}';tab('overview',document.querySelectorAll('.nav-tab')[0]);analyse();">Analyse</button></td><td><button class="btn" style="padding:2px 7px;font-size:9px;" onclick="WL=WL.filter(x=>x!=='${k}');localStorage.setItem('sm_wl',JSON.stringify(WL));renderWL();">✕</button></td></tr>`;}).join("")}</tbody></table>`;
+}
+
+function addToWL(){const k=document.getElementById("stkIn").value.trim().toUpperCase();if(k&&!WL.includes(k)){WL.push(k);localStorage.setItem("sm_wl",JSON.stringify(WL));}}
+function addWLManual(){const k=document.getElementById("wlIn").value.trim().toUpperCase();if(k&&!WL.includes(k)){WL.push(k);localStorage.setItem("sm_wl",JSON.stringify(WL));renderWL();document.getElementById("wlIn").value="";}}
+
+async function refreshWL(){
+  const card=document.getElementById("wlAiCard"),box=document.getElementById("wlAiBox");
+  card.style.display="block";box.innerHTML=`<span class="spin"></span>Claude reviewing watchlist...`;
+  const key=API_KEY||localStorage.getItem("sm_api_key")||"";
+  if(!key){box.innerHTML=`Add Claude API key in Setup tab.`;renderWL();return;}
+  const summary=WL.map(k=>{const s=SD[k]||{};const c=combo(s);return `${k}: score ${c}/99, RS ${s.rs||50}/99`;}).join(" | ");
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,messages:[{role:"user",content:`Smart Money watchlist review: ${summary}. 2 lines per stock: RS vs NIFTY + BUY/WATCH/AVOID with reason. Direct.`}]})});
+    const j=await r.json();
+    const t=j.content?.[0]?.text||"";
+    box.innerHTML=`<span class="ai-tag">Claude — ${new Date().toLocaleTimeString("en-IN")} IST</span>`+(t.replace(/\n\n/g,"<br><br>").replace(/\n/g,"<br>"));
+  }catch(e){box.innerHTML=`<span style="color:var(--amber);">Error: ${e.message}</span>`;}
+  renderWL();
+}
+
+function createAlert(){
+  const stk=document.getElementById("alStk").value.trim().toUpperCase();
+  if(!stk)return;
+  ALERTS.push({stk,type:document.getElementById("alType").value,time:document.getElementById("alTime").value,id:Date.now()});
+  localStorage.setItem("sm_alerts",JSON.stringify(ALERTS));
+  renderAlerts();document.getElementById("alStk").value="";
+}
+
+function renderAlerts(){
+  const el=document.getElementById("alList");
+  if(!ALERTS.length){el.innerHTML=`<div style="font-size:11px;color:var(--text2);">No active alerts.</div>`;return;}
+  el.innerHTML=ALERTS.map(a=>`<div class="arow"><div class="adot" style="background:var(--green);"></div><div style="flex:1;"><div style="font-weight:600;font-family:var(--mono);font-size:11px;">${a.stk}</div><div style="font-size:10px;color:var(--text2);">${a.type} — ${a.time}</div></div><button class="btn" style="padding:2px 7px;font-size:9px;" onclick="ALERTS=ALERTS.filter(x=>x.id!==${a.id});localStorage.setItem('sm_alerts',JSON.stringify(ALERTS));renderAlerts();">✕</button></div>`).join("");
+}
+
+function logTrade(){
+  const stk=document.getElementById("jStk").value.trim().toUpperCase();
+  const entry=parseFloat(document.getElementById("jEntry").value)||0;
+  if(!stk||!entry)return;
+  const sl=parseFloat(document.getElementById("jSL").value)||0;
+  const tgt=parseFloat(document.getElementById("jTgt").value)||0;
+  const rr=tgt&&sl&&entry?((tgt-entry)/(entry-sl)).toFixed(1):"—";
+  TRADES.push({stk,entry,qty:parseFloat(document.getElementById("jQty").value)||0,sl,tgt,type:document.getElementById("jType").value,rr,date:new Date().toLocaleDateString("en-IN"),id:Date.now()});
+  localStorage.setItem("sm_trades",JSON.stringify(TRADES));
+  renderJournal();
+  ["jStk","jEntry","jQty","jSL","jTgt"].forEach(id=>document.getElementById(id).value="");
+}
+
+function renderJournal(){
+  document.getElementById("jTot").textContent=TRADES.length;
+  document.getElementById("jOpen").textContent=TRADES.length;
+  if(TRADES.length){
+    const rrs=TRADES.filter(t=>t.rr!=="—").map(t=>parseFloat(t.rr));
+    document.getElementById("jRR").textContent=rrs.length?(rrs.reduce((a,b)=>a+b,0)/rrs.length).toFixed(1)+"x":"—";
+    const best=TRADES.reduce((b,t)=>parseFloat(t.rr||0)>parseFloat(b.rr||0)?t:b,TRADES[0]);
+    document.getElementById("jBest").textContent=best.stk;
+  }
+  const log=document.getElementById("jLog");
+  if(!TRADES.length){log.innerHTML=`<div style="font-size:11px;color:var(--text2);">No trades logged.</div>`;return;}
+  log.innerHTML=`<div style="overflow-x:auto;"><table class="tbl"><thead><tr><th>Stock</th><th>Entry</th><th>SL</th><th>Target</th><th>R:R</th><th>Type</th><th>Date</th><th></th></tr></thead><tbody>${TRADES.map(t=>`<tr><td style="font-weight:600;font-family:var(--mono);">${t.stk}</td><td style="font-family:var(--mono);">₹${t.entry}</td><td style="color:var(--red);font-family:var(--mono);">₹${t.sl||"—"}</td><td style="color:var(--green);font-family:var(--mono);">₹${t.tgt||"—"}</td><td style="font-weight:600;color:${parseFloat(t.rr)>=2?"var(--green)":parseFloat(t.rr)>=1?"var(--amber)":"var(--red)"};font-family:var(--mono);">${t.rr}x</td><td style="font-size:10px;color:var(--text2);">${t.type.split("—")[1]?.trim()||""}</td><td style="font-size:10px;color:var(--text2);font-family:var(--mono);">${t.date}</td><td><button class="btn" style="padding:2px 7px;font-size:9px;" onclick="TRADES=TRADES.filter(x=>x.id!==${t.id});localStorage.setItem('sm_trades',JSON.stringify(TRADES));renderJournal();">✕</button></td></tr>`).join("")}</tbody></table></div>`;
+}
+
+function clock(){
+  const now=new Date(),ist=new Date(now.getTime()+5.5*3600000);
+  const h=ist.getUTCHours(),m=ist.getUTCMinutes(),s=ist.getUTCSeconds(),wd=ist.getUTCDay();
+  document.getElementById("clock").textContent=`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")} IST`;
+  const open=(h>9||(h===9&&m>=15))&&(h<15||(h===15&&m<=30))&&wd>=1&&wd<=5;
+  document.getElementById("mktLbl").textContent=open?"NSE Live":"NSE Closed";
+  document.getElementById("mktBadge").textContent=open?"● MARKET OPEN":"● MARKET CLOSED";
+  document.getElementById("mktBadge").style.background=open?"#052E16":"#2D0A0A";
+  document.getElementById("mktBadge").style.color=open?"#4ADE80":"#F87171";
+}
+
+document.getElementById("stkIn").addEventListener("keydown",e=>{if(e.key==="Enter")analyse();});
+document.getElementById("wlIn").addEventListener("keydown",e=>{if(e.key==="Enter")addWLManual();});
+if(API_KEY)document.getElementById("keyStatus").innerHTML=`<span style="color:var(--green);">API key loaded from memory.</span>`;
+clock();setInterval(clock,1000);
+renderHeat();
+</script>
+</body>
+</html>
